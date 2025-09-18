@@ -68,15 +68,13 @@ Or
 ## Workspace and Package Creation
 
 ```bash
-mkdir -p ~/<ros2_ws_YYYY>/src
-echo ''source ~/<ros2_ws_YYYY>/install/setup.bash'' >> ~/.bashrc
+mkdir -p ~/ros2_ws/src
+echo ''source ~/ros2_ws/install/setup.bash'' >> ~/.bashrc
 source ~/.bashrc
 ```
-**Note**. Where `<ros2_ws_YYYY>` has to be change by the Year and the Semester. **Ex**. If the Year is 2025 and it is the 2nd Semester. Therefore, the Worksapce is call: `ros2_ws_2502`
-
+In the `src` folder inside of the Workspace
 ```bash
-# Comando general
-~/<ros2_ws_YYYY>/src $ ros2 pkg create <ros_package_name> --build-type ament_python  --dependencies <package_dependencies>
+ros2 pkg create <ros_package_name> --build-type ament_python  --dependencies <package_dependencies>
 ```
 
 ## Building
@@ -90,14 +88,41 @@ source install/setup.bash
 
 ## Usage
 
+### Hard-code Inputs
+
 To run the odometry node:
 
 ```bash
 ros2 run mr_odom_noholo_diffdrive mr_odom_node_p2
 ```
 
-To run the teleoperation odometry node:
+To run the Mobile Robot Model:
 
+```bash
+ros2 launch mr_odom_noholo_diffdrive robot_spawn.launch.py
+```
+
+To run Rviz2:
+
+```bash
+rviz2
+```
+
+### Teleoperation Input
+
+To run the Mobile Robot Model:
+
+```bash
+ros2 launch mr_odom_noholo_diffdrive robot_spawn.launch.py
+```
+
+To run Rviz2:
+
+```bash
+rviz2
+```
+
+To run the teleoperation odometry node:
 
 ```bash
 ros2 run mr_odom_noholo_diffdrive mr_odom_node_p2_teleop
@@ -106,7 +131,7 @@ ros2 run mr_odom_noholo_diffdrive mr_odom_node_p2_teleop
     ```bash
     ros2 run teleop_twist_keyboard teleop_twist_keyboard
     ```
-
+Or
 - To launch the joystick teleoperation node (on Ubuntu machine):
 
     ```bash
@@ -130,7 +155,7 @@ ros2 run mr_odom_noholo_diffdrive mr_odom_node_p2_teleop
 
 ## Other programs recommended to run 
 
-- RViz2 with TF pluging
+- RViz2 with TF and Robot Model plug-ins
 - RQT with Plot topic data
 
 
