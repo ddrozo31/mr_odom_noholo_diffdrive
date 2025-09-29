@@ -27,6 +27,7 @@ setup(
         'console_scripts': [
             'mr_odom_node_p2 = mr_odom_noholo_diffdrive.mr_odom_node_p2:main',
             'mr_odom_node_p2_teleop = mr_odom_noholo_diffdrive.mr_odom_node_p2_teleop:main',
+            'joy_bridge_node = mr_odom_noholo_diffdrive.joy_bridge_node:main'
         ],
     },
 )

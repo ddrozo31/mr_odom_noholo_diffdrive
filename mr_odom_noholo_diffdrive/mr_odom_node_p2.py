@@ -7,7 +7,6 @@ import numpy as np
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import JointState
-
 from nav_msgs.msg import Odometry
 
 def jacobin_matrix(phi):
@@ -16,15 +15,15 @@ def jacobin_matrix(phi):
                   [0,            0,           1]])
     return J
 
-class ODOM_Node_P2(Node): # <--- CHANGE ME
+class ODOM_Node_P2(Node):
     def __init__(self):
-        super().__init__("odom_node_p2") # <--- CHANGE ME
+        super().__init__("odom_node_p2")
 
         # initial conditions
         self.eta = np.array([[0.0],
-                             [0.0],
-                             [0.0]])  
-        
+                            [0.0],
+                            [0.0]])  
+
         # vehicle parameters
         self.a = 0.05  # wheel radius
         self.d = 0.2+0.04/2  # distance between wheels and center of the robot
@@ -39,14 +38,14 @@ class ODOM_Node_P2(Node): # <--- CHANGE ME
 
         # publishers and subscribers
         qos = QoSProfile(depth=10)
-        
+
         # odom_publisher
         self.odom_pub = self.create_publisher(
-            msg_type=Odometry, # <--- CHANGE ME
+            msg_type=Odometry, 
             topic="odom",
             qos_profile=qos
         )
-        
+
         self.joint_state_pub = self.create_publisher(
             msg_type=JointState,
             topic="joint_states",
@@ -57,51 +56,52 @@ class ODOM_Node_P2(Node): # <--- CHANGE ME
         # Create a TF broadcaster to publish TransformStamped messages onto /tf
         # Used to maintain coordinate frame relationships in ROS 2
         self.tf_broadcaster = TransformBroadcaster(self)
-        
+
         self.t = TransformStamped()
         self.t.header.frame_id = 'odom'
         self.t.child_frame_id = 'base_link'
 
-        # time variables for integration
         self.dt = 0.1
         self.timer = self.create_timer(self.dt, self.timer_callback)
-        
+
+
     def timer_callback(self):
-        
         psi = self.eta[2,0]
         J = jacobin_matrix(psi)
-        
+
         self.w = np.array([[self.w1],
-                           [self.w2]])
+                         [self.w2]])
         
         # wheel kimematic model
         W = np.array([[self.a/2, self.a/2],
-                      [0, 0],
-                      [-self.a/(2*self.d), self.a/(2*self.d)]])
+                [0, 0],
+                [-self.a/(2*self.d), self.a/(2*self.d)]])
         
         # body velocity vector
         self.xi = W @ self.w
-        
+
         # kinematic model
         eta_dot = J @ self.xi
         
         # euler integration
         self.eta += eta_dot * self.dt
-        
+
         # publish odometry message
         self.odometry_publisher()
-        
+
         # publish tf message
         self.odom_tf_broadcaster()
-        
-        # publish joint state
+
+          # publish joint state
         self.joint_state_publisher()
 
         self.get_logger().info(f"x: {self.eta[0,0]:.2f}, y: {self.eta[1,0]:.2f}, phi: {self.eta[2,0]:.2f}")
-        
+
+
+
     def odometry_publisher(self):
-    
         now = self.get_clock().now()
+        
         odom_msg = Odometry() #
         
         # header
@@ -125,13 +125,12 @@ class ODOM_Node_P2(Node): # <--- CHANGE ME
 
         # publish the message
         self.odom_pub.publish(odom_msg)
-        
+
     def odom_tf_broadcaster(self):
-        
         # header
         now = self.get_clock().now()
         self.t.header.stamp = now.to_msg()
-               
+                
         # position and orientation
         self.t.transform.translation.x = self.eta[0,0]
         self.t.transform.translation.y = self.eta[1,0]
@@ -169,14 +168,10 @@ class ODOM_Node_P2(Node): # <--- CHANGE ME
 
 def main():
     rclpy.init()
-    node = ODOM_Node_P2() # <--- CHANGE ME
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    node = ODOM_Node_P2()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
